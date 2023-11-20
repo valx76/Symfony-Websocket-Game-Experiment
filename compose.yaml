@@ -15,7 +15,19 @@ services:
       # - ./docker/db/data:/var/lib/postgresql/data:rw
 ###< doctrine/doctrine-bundle ###
 
+  redis:
+    image: redis:latest
+    restart: always
+    volumes:
+      - redis_data:/data
+    environment:
+      - REDIS_PASSWORD=pwd123
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+
 volumes:
 ###> doctrine/doctrine-bundle ###
   database_data:
 ###< doctrine/doctrine-bundle ###
+
+  redis_data:

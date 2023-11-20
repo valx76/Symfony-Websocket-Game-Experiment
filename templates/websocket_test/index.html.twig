@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <svg id="game_view" width="300" height="200" xmlns="http://www.w3.org/2000/svg">
+        <!-- -->
+    </svg>
+{% endblock %}
+
+{% block javascripts %}
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // max exclusive / min inclusive
+            function getRandomInt(min, max) {
+                min = Math.ceil(min);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max - min) + min);
+            }
+
+            function render(data) {
+                data = JSON.parse(data);
+
+                renderGrid(data.grid);
+                renderPlayers(data.players);
+            }
+
+            function renderGrid(data) {
+                // TODO
+            }
+
+            function renderPlayers(players) {
+                eltGameView.innerHTML = '';
+
+                players.forEach((player) => {
+                    const eltPlayer = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                    eltPlayer.setAttribute('cx', player.position.x);
+                    eltPlayer.setAttribute('cy', player.position.y);
+                    eltPlayer.setAttribute('r', '10');
+                    eltPlayer.setAttribute('fill', 'red');
+
+                    eltGameView.appendChild(eltPlayer);
+                });
+            }
+
+            function toSVGPoint(svg, x, y) {
+                const point = new DOMPoint(x, y);
+                return point.matrixTransform(svg.getScreenCTM().inverse());
+            }
+
+
+            const eltGameView = document.querySelector('#game_view');
+
+
+            // Create WebSocket connection.
+            const socket = new WebSocket('ws://localhost:8080');
+
+            // Connection opened
+            socket.addEventListener('open', (event) => {
+                console.log('connected!');
+            });
+
+            // Listen for messages
+            socket.addEventListener('message', (event) => {
+                render(event.data);
+            });
+
+
+            // MOVE
+            eltGameView.addEventListener('click', (event) => {
+                const clickPosition = toSVGPoint(event.target, event.clientX, event.clientY);
+
+                const msg = JSON.stringify({
+                    id: 1, // MOVE
+                    content: {
+                        positionX: clickPosition.x,
+                        positionY: clickPosition.y
+                    }
+                });
+
+                socket.send(msg);
+            });
+
+        });
+    </script>
+{% endblock %}

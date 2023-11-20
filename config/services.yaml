@@ -4,6 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    game_storage_host: '%env(APP_GAME_STORAGE_HOST)%'
+    game_storage_port: '%env(APP_GAME_STORAGE_PORT)%'
 
 services:
     # default configuration for services in *this* file
@@ -16,9 +18,9 @@ services:
     App\:
         resource: '../src/'
         exclude:
-            - '../src/DependencyInjection/'
-            - '../src/Entity/'
+            - '../src/Shared/DependencyInjection/'
+            - '../src/Web/Entity/'
             - '../src/Kernel.php'
 
-    # add more service definitions when explicit configuration is needed
-    # please note that last definitions always *replace* previous ones
+    App\Shared\Service\RedisGameStorage: ~
+    App\Shared\Contracts\GameStorageInterface: '@App\Shared\Service\RedisGameStorage'
